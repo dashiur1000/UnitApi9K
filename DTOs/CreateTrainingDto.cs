@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.CompilerServices;
-namespace UnitApi9K.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UnitApi9K.DTOs
 {
-    public class TrainingSession
+    public class CreateTrainingDto
     {
-        public int Id { get; set; }
+        [Required]
+        public int DogId { get; set; }
         [Required]
         public DateTime SessionDate { get; set; }
         [Required]
@@ -17,11 +17,8 @@ namespace UnitApi9K.Models
         [Required]
         [Range(0, 100)]
         public int PerformanceScore { get; set; }
-        public bool Passed { get; set; }
         [Required]
         [StringLength(100)]
-        public string Evaluator {  get; set; }
-        public Dog? Dog { get; set; }
-        public int DogId { get; set; }
+        public string Evaluator { get; set; }
     }
 }
