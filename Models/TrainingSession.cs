@@ -7,7 +7,6 @@ namespace UnitApi9K.Models
     {
         public int Id { get; set; }
         [Required]
-        //[DateTimeConstant(< DateTime.UtcNow)]//
         public DateTime SessionDate { get; set; }
         [Required]
         [Range(1, 300)]

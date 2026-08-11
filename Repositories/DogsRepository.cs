@@ -2,6 +2,7 @@
 using System.Collections;
 using UnitApi9K.Data;
 using UnitApi9K.DTOs;
+using UnitApi9K.Models;
 
 namespace UnitApi9K.Repositories
 {
@@ -27,9 +28,41 @@ namespace UnitApi9K.Repositories
                     Status = a.Status,
                 }).ToListAsync();
         }
-        public async Task<ICollection<DogDto>> GetDogByIdAsync(int id)
+        public async Task<DogDto> CreateDogAsync(CreateDogDto Dog)
         {
-
+            try
+            {
+                var newDog = new Dog
+                {
+                    Name = Dog.Name,
+                    DateOfBirth = Dog.DateOfBirth,
+                    Breed = Dog.Breed,
+                    MicrochipId = Dog.MicrochipId,
+                    Specialty = Dog.Specialty,
+                    Status = Dog.Status
+                };
+                if(newDog.DateOfBirth >= DateTime.UtcNow)
+                {
+                    return null;
+                }
+                _context.Dogs.Add(newDog);
+                await _context.SaveChangesAsync();
+                return new DogDto
+                {
+                    Id = newDog.Id,
+                    Name = newDog.Name,
+                    Breed = newDog.Breed,
+                    DateOfBirth = newDog.DateOfBirth,
+                    MicrochipId = newDog.MicrochipId,
+                    Specialty = newDog.Specialty,
+                    Status = newDog.Status
+                };
+            }
+            catch
+            {
+                return null;
+            }
+            
         }
     }
 }
