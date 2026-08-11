@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.NetworkInformation;
 using UnitApi9K.DTOs;
 using UnitApi9K.Repositories;
 
@@ -13,7 +14,7 @@ namespace UnitApi9K.Controllers
         {
             _dogsRepository = dogsRepository;
         }
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<DogDto>> GetDogById(int id)
         {
             var result = await _dogsRepository.GetDogByIdAsync(id);
@@ -28,6 +29,18 @@ namespace UnitApi9K.Controllers
                 return BadRequest();
             }
             return CreatedAtAction(nameof(GetDogById), result, result);
+        }
+        [HttpGet("search")]
+        public async Task<ActionResult<DogDto>> Search(string? specialty, string? status)
+        {
+            var result = await _dogsRepository.GetDogsByFilters(specialty, status);
+            return Ok(result);
+        }
+        [HttpGet("with-handler")]
+        public async Task<ActionResult<IEnumerable<DogWithHandlerDto>>> GetDogWithHandler()
+        {
+            var result = await _dogsRepository.GetDogWithHandlerAsync();
+            return Ok(result);
         }
     }
 }

@@ -15,6 +15,20 @@ namespace UnitApi9K.Repositories
         {
             _context = context;
         }
+        public async Task<ICollection<CreateTrainingDto>> GetTrainingByIdAsync(int id)
+        {
+            return await _context.TrainingSessions
+                .Where(d => d.Id == id)
+                .Select(a => new CreateTrainingDto
+                 {
+                     DogId = a.DogId,
+                     DurationMinutes = a.DurationMinutes,
+                     Evaluator = a.Evaluator,
+                     PerformanceScore = a.PerformanceScore,
+                     SessionDate = a.SessionDate,
+                     TrainingType = a.TrainingType
+                 }).ToListAsync();
+        }
         public async Task<TrainingDto> CreateTrainingAsync(CreateTrainingDto trainingDto)
         {
             try
@@ -24,7 +38,7 @@ namespace UnitApi9K.Repositories
                 {
                     Passed = true;
                 }
-                var dog = await _context.Dogs.Where(d => d.Id == trainingDto.DogId).Select(a => new DogDto
+                var dog = await _context.Dogs.Where(d => d.Id == trainingDto.DogId).Where(d => d.Status != "Retired").Select(a => new DogDto
                 {
                     Id = a.Id,
                     Name = a.Name,
@@ -34,10 +48,6 @@ namespace UnitApi9K.Repositories
                     Specialty = a.Specialty,
                     Status = a.Status,
                 }).ToListAsync();
-                if(dog == null || dog.Count == 0)
-                {
-                    return null;
-                }
                 var newTraining = new TrainingSession
                 {
                     DogId = trainingDto.DogId,
@@ -48,20 +58,22 @@ namespace UnitApi9K.Repositories
                     Passed = Passed,
                     Evaluator = trainingDto.Evaluator
                 };
-                if (newTraining.SessionDate >= DateTime.UtcNow)
+                if (newTraining.SessionDate >= DateTime.Today)
                 {
                     return null;
                 }
+                if(newTraining.SessionDate < DateTime.UtcNow)
                 _context.TrainingSessions.Add(newTraining);
                 await _context.SaveChangesAsync();
                 return new TrainingDto
                 {
+                    DogId = newTraining.DogId,
                     TrainingId = newTraining.Id,
                     SessionDate = newTraining.SessionDate,
                     PerformanceScore = newTraining.PerformanceScore,
                     TrainingType = newTraining.TrainingType,
-                    DurationMinutes = newTraining.DurationMinutes,
                     Passed = newTraining.Passed,
+                    DurationMinutes = newTraining.DurationMinutes,
                     Evaluator = newTraining.Evaluator
                 };
             }
