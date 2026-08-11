@@ -13,15 +13,38 @@ namespace UnitApi9K.Controllers
         {
             _trainingSessionsRepository = trainingSessionsRepository;
         }
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CreateTrainingDto>>> GetById(int id)
+        {
+            var result = await _trainingSessionsRepository.GetTrainingByIdAsync(id);
+            if(result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
         [HttpPost]
         public async Task<ActionResult<CreateTrainingDto>> CreateTraining(CreateTrainingDto trainingDto)
         {
-            var result = _trainingSessionsRepository.CreateTrainingAsync(trainingDto);
+            var result =  await _trainingSessionsRepository.CreateTrainingAsync(trainingDto);
             if (result == null)
             {
                 return BadRequest();
             }
-            return CreatedAtAction(nameof(CreateTraining), result);
+            return CreatedAtAction(nameof(GetById), result);
+        }
+        [HttpGet("detailed")]
+        public async Task<ActionResult<IEnumerable<TrainingWithDogAndHandlerDto>>> GetAllTrainingWithDogAndHandler()
+        {
+            var result = await _trainingSessionsRepository.GetAllDetailedAsync();
+            return Ok(result);
+        }
+        [HttpGet("paged")]
+        public async Task<ActionResult<IEnumerable<TrainingSessionPagedDto>>> GetTrainingByPage(int page = 1, int pageSize = 10)
+        {
+            var result = await _trainingSessionsRepository.GetPagedAsync(page, pageSize);
+            return Ok(result);
         }
     }
+
 }

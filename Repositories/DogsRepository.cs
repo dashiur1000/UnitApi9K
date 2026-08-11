@@ -41,7 +41,7 @@ namespace UnitApi9K.Repositories
                     Specialty = Dog.Specialty,
                     Status = Dog.Status
                 };
-                if(newDog.DateOfBirth >= DateTime.UtcNow)
+                if(newDog.DateOfBirth >= DateTime.Today)
                 {
                     return null;
                 }
@@ -62,7 +62,57 @@ namespace UnitApi9K.Repositories
             {
                 return null;
             }
-            
+        }
+        public async Task<ICollection<DogDto>> GetDogsByFilters(string? specialty, string? status)
+        {
+            var query = _context.Dogs.AsQueryable();
+            if(string.IsNullOrEmpty(specialty))
+            {
+                query = query.Where(a => a.Specialty == specialty);
+            }
+            if(string.IsNullOrEmpty(status))
+            {
+                query = query.Where(a => a.Status == status);
+            }
+            return await query
+                .Select(a => new DogDto
+                {
+                    Id=a.Id,
+                    MicrochipId=a.MicrochipId,
+                    Breed=a.Breed,
+                    DateOfBirth=a.DateOfBirth,
+                    Name = a.Name,
+                    Specialty=a.Specialty,
+                    Status=a.Status
+                }).ToListAsync();
+        }
+        public async Task<ICollection<DogWithHandlerDto>> GetDogWithHandlerAsync()
+        {
+            return await _context.Dogs
+                .Include(a => a.Handler)
+                .Select(s => new DogWithHandlerDto
+                {
+                    DogId = s.Id,
+                    DogName = s.Name,
+                    DogBreed = s.Breed,
+                    HandlerFullName = s.Handler.FullName,
+                    HandlerRank = s.Handler.Rank
+                }).ToListAsync();
+        }
+        public async Task<ICollection<DogWithPerformanceDto>> GetperformanceSummaryAsync()
+        {
+            return await _context.TrainingSessions
+                .Include(a => a.Dog)
+                .GroupBy(a => a.DogId)
+                .Select(g => new DogWithPerformanceDto
+                {
+                    DogId = g.Key,
+                    DogName = g.Select(x => x.Dog.Name).FirstOrDefault(),
+                    Specialty = g.Select(x => x.Dog.Specialty).FirstOrDefault(),
+                    Training = g.Count(),
+                    PerformanceScoreAverage = g.Average(a => a.PerformanceScore),
+                }).ToListAsync();
+
         }
     }
 }
