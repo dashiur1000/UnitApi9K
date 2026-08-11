@@ -82,5 +82,60 @@ namespace UnitApi9K.Repositories
                 return null;
             }
         }
+        public async Task<ICollection<TrainingWithDogAndHandlerDto>> GetAllDetailedAsync()
+        {
+            return await _context.TrainingSessions
+                .Include(x => x.Dog)
+                .ThenInclude(x => x.Handler)
+                .Select(s => new TrainingWithDogAndHandlerDto
+                {
+                    TrainingId = s.Id,
+                    TrainingType = s.TrainingType,
+                    DurationMinutes = s.DurationMinutes,
+                    PerformanceScore = s.PerformanceScore,
+                    SessionDate = s.SessionDate,
+                    DogName = s.Dog.Name,
+                    Specialty = s.Dog.Specialty,
+                    HandlerFullName = s.Dog.Handler.FullName
+                }).ToListAsync();
+        }
+        public async Task<TrainingSessionPagedDto> GetPagedAsync(int page, int pageSize)
+        {
+            if (page < 1)
+                return null;
+
+            if (pageSize < 5 || pageSize > 50)
+                return null;
+
+            var totalCount = await _context.TrainingSessions.CountAsync();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var items = await _context.TrainingSessions
+                .OrderByDescending(x => x.SessionDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new TrainingDto
+                {
+                    TrainingId = x.Id,
+                    DogId = x.DogId,
+                    DurationMinutes = x.DurationMinutes,
+                    SessionDate = x.SessionDate,
+                    Evaluator = x.Evaluator,
+                    Passed = x.Passed,
+                    PerformanceScore = x.PerformanceScore,
+                    TrainingType = x.TrainingType
+                }).ToListAsync();
+
+            return new TrainingSessionPagedDto
+            {
+                Items = items,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
+        }
+
     }
 }

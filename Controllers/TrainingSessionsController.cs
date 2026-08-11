@@ -31,7 +31,20 @@ namespace UnitApi9K.Controllers
             {
                 return BadRequest();
             }
-            return CreatedAtAction(nameof(CreateTraining), result);
+            return CreatedAtAction(nameof(GetById), result);
+        }
+        [HttpGet("detailed")]
+        public async Task<ActionResult<IEnumerable<TrainingWithDogAndHandlerDto>>> GetAllTrainingWithDogAndHandler()
+        {
+            var result = await _trainingSessionsRepository.GetAllDetailedAsync();
+            return Ok(result);
+        }
+        [HttpGet("paged")]
+        public async Task<ActionResult<IEnumerable<TrainingSessionPagedDto>>> GetTrainingByPage(int page = 1, int pageSize = 10)
+        {
+            var result = await _trainingSessionsRepository.GetPagedAsync(page, pageSize);
+            return Ok(result);
         }
     }
+
 }

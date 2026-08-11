@@ -8,6 +8,7 @@ namespace UnitApi9K.Repositories
         Task<DogDto> CreateDogAsync(CreateDogDto Dog);
         Task<ICollection<DogDto>> GetDogsByFilters(string? specialty, string? status);
         Task<ICollection<DogWithHandlerDto>> GetDogWithHandlerAsync();
+        Task<ICollection<DogWithPerformanceDto>> GetperformanceSummaryAsync();
 
     }
 }

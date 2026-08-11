@@ -18,6 +18,10 @@ namespace UnitApi9K.Controllers
         public async Task<ActionResult<DogDto>> GetDogById(int id)
         {
             var result = await _dogsRepository.GetDogByIdAsync(id);
+            if(result == null)
+            {
+                return NotFound();
+            }
             return Ok(result);
         }
         [HttpPost]
@@ -40,6 +44,12 @@ namespace UnitApi9K.Controllers
         public async Task<ActionResult<IEnumerable<DogWithHandlerDto>>> GetDogWithHandler()
         {
             var result = await _dogsRepository.GetDogWithHandlerAsync();
+            return Ok(result);
+        }
+        [HttpGet("performance-summary")]
+        public async Task<ActionResult<IEnumerable<DogWithPerformanceDto>>> GetDogWithPerformance()
+        {
+            var result = await _dogsRepository.GetperformanceSummaryAsync();
             return Ok(result);
         }
     }

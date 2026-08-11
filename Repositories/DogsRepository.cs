@@ -99,5 +99,20 @@ namespace UnitApi9K.Repositories
                     HandlerRank = s.Handler.Rank
                 }).ToListAsync();
         }
+        public async Task<ICollection<DogWithPerformanceDto>> GetperformanceSummaryAsync()
+        {
+            return await _context.TrainingSessions
+                .Include(a => a.Dog)
+                .GroupBy(a => a.DogId)
+                .Select(g => new DogWithPerformanceDto
+                {
+                    DogId = g.Key,
+                    DogName = g.Select(x => x.Dog.Name).FirstOrDefault(),
+                    Specialty = g.Select(x => x.Dog.Specialty).FirstOrDefault(),
+                    Training = g.Count(),
+                    PerformanceScoreAverage = g.Average(a => a.PerformanceScore),
+                }).ToListAsync();
+
+        }
     }
 }

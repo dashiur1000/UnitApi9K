@@ -7,5 +7,7 @@ namespace UnitApi9K.Repositories
     {
         Task<ICollection<CreateTrainingDto>> GetTrainingByIdAsync(int id);
         Task<TrainingDto> CreateTrainingAsync(CreateTrainingDto trainingDto);
+        Task<ICollection<TrainingWithDogAndHandlerDto>> GetAllDetailedAsync();
+        Task<TrainingSessionPagedDto> GetPagedAsync(int page, int pageSize);
     }
 }
